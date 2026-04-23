@@ -1,10 +1,19 @@
 "use server";
-
-import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+
+function isPrismaUniqueConstraintError(
+  error: unknown,
+): error is { code: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string"
+  );
+}
 
 function readRequiredText(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -36,10 +45,7 @@ function redirectWithNotice(
 }
 
 function handleUniqueTopicName(error: unknown, redirectPath: string) {
-  if (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === "P2002"
-  ) {
+  if (isPrismaUniqueConstraintError(error) && error.code === "P2002") {
     redirectWithNotice(redirectPath, {
       error: "Topic name already exists.",
     });
