@@ -1,65 +1,175 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+import { createTopic, deleteTopic, updateTopic } from "@/app/actions";
+import { prisma } from "@/lib/prisma";
+
+type HomePageProps = {
+  searchParams?: Promise<{
+    error?: string;
+    message?: string;
+  }>;
+};
+
+export const dynamic = "force-dynamic";
+
+function Notice({ error, message }: { error?: string; message?: string }) {
+  if (!error && !message) {
+    return null;
+  }
+
+  const isError = Boolean(error);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div
+      className={`rounded-2xl border px-4 py-3 text-sm ${
+        isError
+          ? "border-rose-200 bg-rose-50 text-rose-700"
+          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+      }`}
+    >
+      {error ?? message}
     </div>
+  );
+}
+
+export default async function Home({ searchParams }: HomePageProps) {
+  const resolvedSearchParams = await searchParams;
+  const topics = await prisma.topic.findMany({
+    orderBy: [{ name: "asc" }],
+    include: {
+      _count: {
+        select: {
+          flashcards: true,
+        },
+      },
+    },
+  });
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row lg:items-start">
+        <section className="flex-1 rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur">
+          <div className="flex flex-col gap-3 border-b border-white/10 pb-6">
+            <p className="text-sm font-medium uppercase tracking-[0.3em] text-cyan-300">
+              Flashcards
+            </p>
+            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h1 className="text-4xl font-semibold tracking-tight text-white">
+                  Topics
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm text-slate-300">
+                  Organize every flashcard under a topic, then manage the cards inline inside each topic page.
+                </p>
+              </div>
+              <div className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-100">
+                {topics.length} topic{topics.length === 1 ? "" : "s"}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <Notice
+              error={resolvedSearchParams?.error}
+              message={resolvedSearchParams?.message}
+            />
+
+            {topics.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-white/15 bg-slate-900/60 px-6 py-14 text-center text-slate-300">
+                No topics yet. Create your first topic to start building flashcards.
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {topics.map((topic) => (
+                  <article
+                    key={topic.id}
+                    className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h2 className="text-xl font-semibold text-white">{topic.name}</h2>
+                        <p className="mt-2 text-sm text-slate-400">
+                          {topic._count.flashcards} flashcard
+                          {topic._count.flashcards === 1 ? "" : "s"}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/topics/${topic.id}`}
+                        className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-200"
+                      >
+                        Open topic
+                      </Link>
+                    </div>
+
+                    <details className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
+                      <summary className="cursor-pointer list-none text-sm font-medium text-slate-200">
+                        Edit topic
+                      </summary>
+                      <form action={updateTopic} className="mt-4 space-y-3">
+                        <input type="hidden" name="topicId" value={topic.id} />
+                        <input type="hidden" name="redirectPath" value="/" />
+                        <label className="block space-y-2 text-sm text-slate-300">
+                          <span>Name</span>
+                          <input
+                            name="name"
+                            defaultValue={topic.name}
+                            className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none ring-0 placeholder:text-slate-500 focus:border-cyan-300"
+                          />
+                        </label>
+                        <button
+                          type="submit"
+                          className="rounded-full border border-cyan-300/40 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:border-cyan-200 hover:bg-cyan-300/10"
+                        >
+                          Save changes
+                        </button>
+                      </form>
+                    </details>
+
+                    <form action={deleteTopic} className="mt-4">
+                      <input type="hidden" name="topicId" value={topic.id} />
+                      <input type="hidden" name="redirectPath" value="/" />
+                      <button
+                        type="submit"
+                        className="text-sm font-medium text-rose-300 transition hover:text-rose-200"
+                      >
+                        Delete topic
+                      </button>
+                    </form>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <aside className="w-full rounded-[2rem] border border-white/10 bg-slate-900/80 px-6 py-6 text-slate-100 shadow-2xl shadow-slate-950/30 backdrop-blur lg:sticky lg:top-6 lg:max-w-sm">
+          <p className="text-sm font-medium uppercase tracking-[0.3em] text-cyan-300">
+            New Topic
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight">Create a group</h2>
+          <p className="mt-2 text-sm text-slate-300">
+            Topics are the main grouping for your flashcards. Use a short clear name.
+          </p>
+
+          <form action={createTopic} className="mt-6 space-y-4">
+            <input type="hidden" name="redirectPath" value="/" />
+            <label className="block space-y-2 text-sm font-medium text-slate-200">
+              <span>Topic name</span>
+              <input
+                name="name"
+                placeholder="JavaScript basics"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+              />
+            </label>
+            <button
+              type="submit"
+              className="w-full rounded-full bg-cyan-300 px-4 py-3 text-sm font-medium text-slate-950 transition hover:bg-cyan-200"
+            >
+              Create topic
+            </button>
+          </form>
+        </aside>
+      </div>
+    </main>
   );
 }
