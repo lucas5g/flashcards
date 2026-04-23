@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Trash } from "@phosphor-icons/react/dist/ssr";
 
 import {
   createFlashcard,
@@ -65,7 +66,7 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
           <Link href="/" className="text-sm text-cyan-300 transition hover:text-cyan-200">
             Back to topics
           </Link>
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-sm font-medium uppercase tracking-[0.3em] text-cyan-300">
                 Topic
@@ -79,21 +80,24 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-3 lg:flex-col lg:items-end">
               {topic.flashcards.length > 0 ? (
                 <Link
                   href={`/topics/${topic.id}/play`}
-                  className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-200"
+                  className="inline-flex min-h-12 items-center justify-center whitespace-nowrap rounded-full bg-cyan-300 px-5 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-200"
                 >
                   Play flashcards
                 </Link>
               ) : null}
 
-              <details className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <summary className="cursor-pointer list-none text-sm font-medium text-slate-100">
+              <details className="group relative shrink-0">
+                <summary className="flex min-h-12 cursor-pointer list-none items-center justify-center whitespace-nowrap rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10">
                   Edit topic
                 </summary>
-                <form action={updateTopic} className="mt-4 flex min-w-72 flex-col gap-3">
+                <form
+                  action={updateTopic}
+                  className="mt-3 flex min-w-72 flex-col gap-3 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-slate-950/40 lg:absolute lg:right-0 lg:top-full lg:z-10 lg:mt-2"
+                >
                   <input type="hidden" name="topicId" value={topic.id} />
                   <input type="hidden" name="redirectPath" value={redirectPath} />
                   <input
@@ -110,22 +114,23 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
                 </form>
               </details>
 
-              <form action={deleteTopic}>
+              <form action={deleteTopic} className="shrink-0">
                 <input type="hidden" name="topicId" value={topic.id} />
                 <input type="hidden" name="redirectPath" value={redirectPath} />
                 <button
                   type="submit"
-                  className="rounded-full border border-rose-300/40 px-4 py-2 text-sm font-medium text-rose-200 transition hover:bg-rose-300/10"
+                  aria-label={`Delete ${topic.name}`}
+                  className="inline-flex min-h-12 w-12 items-center justify-center rounded-full border border-rose-300/40 text-rose-200 transition hover:bg-rose-300/10"
                 >
-                  Delete topic
+                  <Trash size={20} weight="bold" />
                 </button>
               </form>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <section className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
+        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <section className="order-2 rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
             <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
               <h2 className="text-2xl font-semibold text-white">Cards</h2>
               <div className="rounded-full border border-white/10 bg-slate-950/40 px-3 py-1 text-sm text-slate-300">
@@ -141,7 +146,7 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
 
               {topic.flashcards.length === 0 ? (
                 <div className="rounded-3xl border border-dashed border-white/15 bg-slate-900/50 px-6 py-14 text-center text-slate-300">
-                  No flashcards yet. Add your first one from the form on the right.
+                  No flashcards yet. Add your first one from the new flashcard form.
                 </div>
               ) : (
                 topic.flashcards.map((flashcard, index) => (
@@ -225,7 +230,7 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
             </div>
           </section>
 
-          <aside className="rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 text-slate-100 shadow-2xl shadow-slate-950/30 backdrop-blur lg:sticky lg:top-6 lg:h-fit">
+          <aside className="order-1 rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 text-slate-100 shadow-2xl shadow-slate-950/30 backdrop-blur lg:sticky lg:top-6 lg:h-fit">
             <p className="text-sm font-medium uppercase tracking-[0.3em] text-cyan-300">
               New Flashcard
             </p>

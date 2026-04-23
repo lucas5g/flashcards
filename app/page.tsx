@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowUpRight, Trash } from "@phosphor-icons/react/dist/ssr";
 
 import { createTopic, deleteTopic, updateTopic } from "@/app/actions";
 import { prisma } from "@/lib/prisma";
@@ -46,7 +47,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row lg:items-start">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row-reverse lg:items-start">
         <section className="flex-1 rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur">
           <div className="flex flex-col gap-3 border-b border-white/10 pb-6">
             <p className="text-sm font-medium uppercase tracking-[0.3em] text-cyan-300">
@@ -95,9 +96,10 @@ export default async function Home({ searchParams }: HomePageProps) {
                       </div>
                       <Link
                         href={`/topics/${topic.id}`}
-                        className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-200"
+                        aria-label={`Open ${topic.name}`}
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-cyan-300 text-slate-950 transition hover:bg-cyan-200"
                       >
-                        Open topic
+                        <ArrowUpRight size={20} weight="bold" />
                       </Link>
                     </div>
 
@@ -130,9 +132,10 @@ export default async function Home({ searchParams }: HomePageProps) {
                       <input type="hidden" name="redirectPath" value="/" />
                       <button
                         type="submit"
-                        className="text-sm font-medium text-rose-300 transition hover:text-rose-200"
+                        aria-label={`Delete ${topic.name}`}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-rose-300 transition hover:bg-rose-300/10 hover:text-rose-200"
                       >
-                        Delete topic
+                        <Trash size={18} weight="bold" />
                       </button>
                     </form>
                   </article>
