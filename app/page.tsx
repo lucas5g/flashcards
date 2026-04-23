@@ -87,8 +87,8 @@ export default async function Home({ searchParams }: HomePageProps) {
                     className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h2 className="text-xl font-semibold text-white">{topic.name}</h2>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-xl font-semibold text-white break-words">{topic.name}</h2>
                         <p className="mt-2 text-sm text-slate-400">
                           {topic._count.flashcards} flashcard
                           {topic._count.flashcards === 1 ? "" : "s"}
@@ -97,7 +97,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                       <Link
                         href={`/topics/${topic.id}`}
                         aria-label={`Open ${topic.name}`}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-cyan-300 text-slate-950 transition hover:bg-cyan-200"
+                        className="inline-flex h-11 w-11 shrink-0 items-center justify-center self-start rounded-full bg-cyan-300 text-slate-950 transition hover:bg-cyan-200"
                       >
                         <ArrowUpRight size={20} weight="bold" />
                       </Link>
