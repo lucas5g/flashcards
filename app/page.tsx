@@ -21,11 +21,10 @@ function Notice({ error, message }: { error?: string; message?: string }) {
 
   return (
     <div
-      className={`rounded-2xl border px-4 py-3 text-sm ${
-        isError
+      className={`rounded-2xl border px-4 py-3 text-sm ${isError
           ? "border-rose-200 bg-rose-50 text-rose-700"
           : "border-emerald-200 bg-emerald-50 text-emerald-700"
-      }`}
+        }`}
     >
       {error ?? message}
     </div>
@@ -54,17 +53,18 @@ export default async function Home({ searchParams }: HomePageProps) {
               Flashcards
             </p>
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-              <div>
+              <div className="flex flex-col gap-2">
                 <h1 className="text-4xl font-semibold tracking-tight text-white">
                   Topics
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm text-slate-300">
+                <p className="max-w-2xl text-sm text-slate-300">
                   Organize every flashcard under a topic, then manage the cards inline inside each topic page.
                 </p>
+                <div className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-100">
+                  {topics.length} topic{topics.length === 1 ? "" : "s"}
+                </div>
               </div>
-              <div className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-100">
-                {topics.length} topic{topics.length === 1 ? "" : "s"}
-              </div>
+
             </div>
           </div>
 
